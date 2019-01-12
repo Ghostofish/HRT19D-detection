@@ -14,6 +14,7 @@ public:
 	~Naive_Bayes();
 	void train(string path);
 	void test(string path);
+	void predict(string path);
 private:
 	int feature_quantity;
 	double* Features;
@@ -176,6 +177,45 @@ void Naive_Bayes::test(string path)
 		num_right += (p_1>p_0?1:0 == Features[feature_quantity -1 ])?1:0;
 	}
 	cout<<"测试用例共计"<<number<<"个,"<<"分类正确个数:"<<num_right<<"  正确率:"<<1.0*num_right/number<<endl;
+	
+	test_gathering.close();
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//函数:预测
+//参数:所要读取文件的路径
+void Naive_Bayes::predict(string path)
+{
+	int number=0,i,k=1,k_1=0;
+	double p_1;
+	double p_0;
+	int num_right=0;
+	ifstream test_gathering( path.c_str() , ios::in );
+	if(test_gathering.is_open() != 1) 
+	{
+		cout<<"no file"<<endl;
+	}
+	while ( test_gathering.peek() != EOF )//读取特征
+	{
+		number++;
+		p_1=p_type_1;
+		p_0=p_type_0;
+		for( i=0 ; i<feature_quantity-1 ; i++ )
+		{
+			test_gathering>>Features[i];
+			test_gathering.seekg( 1 , ios::cur );
+			p_1 *= Normal_distribution( Features[i] , Features_mean_value_type_1[i] , Features_variance_type_1[i] );
+			p_0 *= Normal_distribution( Features[i] , Features_mean_value_type_0[i] , Features_variance_type_0[i] );
+		}
+		k++;
+		k_1+=(p_1>p_0?1:0);
+		if( k == 10 )
+		{
+			cout<< (k_1>5?1:0 );
+			k_1=0;
+			k=0;
+		}
+	}
+	cout<<"预测用例共计"<<number<<"个"<<endl;
 	
 	test_gathering.close();
 }
